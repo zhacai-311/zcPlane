@@ -3,514 +3,1113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>守护绿色家园 - 环保公益宣传</title>
+    <title>有道智云文本翻译工具（深色模式版）</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", Arial, sans-serif;
+        /* 全局变量：浅色/深色模式配色 */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --theme-color: #3b82f6;
+            --theme-color-hover: #2563eb;
+            --accent-color: #0ea5e9;
+            --accent-color-hover: #38bdf8;
+            --border-color: #e2e8f0;
+            --error-color: #ef4444;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            --calendar-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --selected-day-color: #10b981; /* 选中日期高亮色 */
+            --selected-month-color: #3b82f6; /* 选中月份高亮色 */
+            --selected-year-color: #8b5cf6; /* 选中年份高亮色 */
         }
 
-        /* 导航栏样式：简洁渐变+悬浮特效（仅hover时有动效） */
-        nav {
-            background: linear-gradient(135deg, #2E8B57, #1f6b43);
-            padding: 1rem 5%;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+        [data-theme="dark"] {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --theme-color: #3b82f6;
+            --theme-color-hover: #60a5fa;
+            --accent-color: #0ea5e9;
+            --accent-color-hover: #38bdf8;
+            --border-color: #475569;
+            --error-color: #fca5a5;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            --calendar-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            --selected-day-color: #15803d; /* 深色模式选中日期高亮色 */
+            --selected-month-color: #60a5fa; /* 深色模式选中月份高亮色 */
+            --selected-year-color: #a78bfa; /* 深色模式选中年份高亮色 */
         }
 
-        .nav-container {
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body { 
+            padding: 1.5rem; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif; 
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative; /* 用于日历点击外部关闭 */
+        }
+
+        /* 头部：标题+时间+深色模式切换 */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .logo {
-            color: white;
-            font-size: 1.8rem;
-            font-weight: bold;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: rotate(5deg) scale(1.05);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin-left: 2rem;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 1.1rem;
-            text-shadow: 0 0 3px #90EE90;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a::after {
-            content: "";
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #90EE90;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 5px #90EE90;
-        }
-
-        .nav-links a:hover {
-            color: #90EE90;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* 英雄区样式：指定文字无特效（原内容保留，样式静态） */
-        .hero {
-            padding: 6rem 5%;
-            background: linear-gradient(180deg, #e8f5e9, #f0f8f0, #fff);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #333;
-            text-align: center;
-            border-bottom: 2px solid #2E8B57;
-        }
-
-        /* 移除指定标题和段落的所有特效，保持纯静态 */
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            letter-spacing: 2px;
-            color: #2E8B57;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
             margin-bottom: 2rem;
-            max-width: 800px;
-            color: #555;
-            line-height: 1.8;
-        }
-
-        /* 核心内容区通用样式 */
-        .section {
-            padding: 5rem 5%;
-            background: linear-gradient(180deg, #fff, #f0f8f0, #e8f5e9);
-            position: relative;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #2E8B57;
-            margin-bottom: 3rem;
-            position: relative;
-            text-shadow: 0 0 5px rgba(46,139,87,0.2);
-            transition: color 0.3s ease;
-        }
-
-        .section-title:hover {
-            color: #1f6b43;
-        }
-
-        .section-title::after {
-            content: "";
-            display: block;
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(90deg, #2E8B57, #90EE90, #2E8B57);
-            margin: 1rem auto 0;
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-
-        .section-title:hover::after {
-            width: 150px;
-        }
-
-        /* 环境现状卡片样式（保留悬浮动效，无内部Banner） */
-        .status-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .status-card {
-            background-color: #f9f9f9;
-            border-radius: 15px;
-            padding: 2rem;
-            border: 1px solid #e0e0e0;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.5s ease;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-
-        .status-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 10px 20px rgba(46,139,87,0.2);
-            border-color: #2E8B57;
-        }
-
-        .status-card h3 {
-            color: #2E8B57;
-            font-size: 1.6rem;
-            margin-bottom: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .status-card:hover h3 {
-            color: #1f6b43;
-        }
-
-        .status-card p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        /* 环保常识模块：仅悬浮时有动效 */
-        .actions {
-            background: linear-gradient(135deg, #f0f8f0, #e8f5e9, #d4f1d4);
-        }
-
-        .action-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .action-item {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
-            transition: all 0.5s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .action-item:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 8px 18px rgba(46,139,87,0.2);
-            border-color: #2E8B57;
-        }
-
-        .action-item i {
-            font-size: 3rem;
-            color: #2E8B57;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .action-item:hover i {
-            color: #1f6b43;
-            transform: scale(1.2);
-        }
-
-        .action-item h4 {
-            font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            color: #333;
-            transition: color 0.3s ease;
-        }
-
-        .action-item:hover h4 {
-            color: #2E8B57;
-        }
-
-        .action-item p {
-            color: #666;
-            line-height: 1.5;
-        }
-
-        /* 环保数据模块：仅悬浮时有动效 */
-        .data-container {
-            display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 3rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 1;
+            gap: 1rem;
         }
 
-        .data-item {
-            text-align: center;
-            padding: 2rem 1.5rem;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 3px 8px rgba(46,139,87,0.1);
-            transition: all 0.5s ease;
-            border: 1px solid #f0f8f0;
+        h1 {
+            color: var(--theme-color);
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 1.8rem;
         }
 
-        .data-item:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(46,139,87,0.2);
-            background: #f0f8f0;
-            border-color: #2E8B57;
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
-        .data-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #2E8B57;
-            margin-bottom: 0.5rem;
+        /* 北京时间显示（可点击） */
+        .time-display {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-family: monospace;
+            background-color: var(--bg-card);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative; /* 作为日历定位容器 */
             transition: all 0.3s ease;
         }
 
-        .data-item:hover .data-number {
-            color: #1f6b43;
-            text-shadow: 0 0 8px rgba(46,139,87,0.3);
+        .time-display:hover {
+            background-color: var(--bg-input);
         }
 
-        .data-desc {
-            color: #555;
-            font-size: 1.1rem;
+        /* 日历样式 */
+        .calendar {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--calendar-shadow);
+            padding: 1rem;
+            z-index: 999;
+            display: none; /* 默认隐藏 */
+            width: 320px; /* 桌面端固定宽度 */
+            opacity: 1;
+            visibility: visible;
         }
 
-        /* 环保理念宣传模块：仅悬浮时有动效 */
-        .concept {
-            background: linear-gradient(135deg, #e8f5e9, #d4f1d4, #b8e986);
-            text-align: center;
+        /* 移动端适配：日历全屏显示 + 强制显示关闭按钮 */
+        @media (max-width: 768px) {
+            .calendar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100vh !important;
+                border-radius: 0 !important;
+                padding: 2rem 1.5rem !important;
+                /* 关键修复1：移除 display: none !important; 避免JS无法覆盖 */
+                display: none;
+                flex-direction: column !important;
+                z-index: 9999 !important; /* 提高移动端层级，确保显示在最上层 */
+            }
+            /* 移动端日历关闭按钮 - 强制显示+样式优化 */
+            #calendarClose {
+                display: block !important;
+                background-color: var(--error-color);
+                color: white;
+                border: none;
+                padding: 0.8rem 0;
+                border-radius: 10px;
+                font-size: 1rem;
+                cursor: pointer;
+                margin-top: auto !important; /* 强制固定在底部 */
+                width: 100%;
+                transition: background-color 0.3s ease;
+            }
+            #calendarClose:hover {
+                background-color: #dc2626;
+            }
         }
 
-        .concept-content {
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-            background: rgba(255,255,255,0.7);
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(46,139,87,0.1);
-            transition: all 0.5s ease;
-            border: 1px solid #e0e0e0;
+        /* 桌面端默认隐藏关闭按钮 */
+        #calendarClose {
+            display: none;
         }
 
-        .concept-content:hover {
-            box-shadow: 0 10px 30px rgba(46,139,87,0.2);
-            background: rgba(255,255,255,0.9);
-            border-color: #2E8B57;
-        }
-
-        .concept p {
-            font-size: 1.1rem;
-            color: #333;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .concept-content:hover p {
-            color: #222;
-        }
-
-        .concept h4 {
-            font-size: 1.5rem;
-            color: #2E8B57;
+        /* 日历头部（年月切换 + 返回今天按钮 + 层级标题） */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
-            transition: color 0.3s ease;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+            gap: 0.5rem;
         }
 
-        .concept-content:hover h4 {
-            color: #1f6b43;
-            text-shadow: 0 0 6px rgba(46,139,87,0.2);
-        }
-
-        /* 页脚样式：简洁渐变+无自动动画 */
-        footer {
-            background: linear-gradient(135deg, #222, #111, #0a4a29);
-            color: white;
-            padding: 3rem 5%;
+        .calendar-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            flex: 1; /* 占满中间空间，让按钮左右排列 */
             text-align: center;
-            border-top: 3px solid #2E8B57;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-            transition: background 0.3s ease;
+            cursor: pointer; /* 标记可点击 */
+            transition: color 0.2s ease;
         }
 
-        footer:hover {
-            background: linear-gradient(135deg, #2a2a2a, #181818, #0f5e36);
+        .calendar-title:hover {
+            color: var(--theme-color);
         }
 
-        .copyright {
-            margin-top: 1rem;
-            color: #aaa;
+        .calendar-btn {
+            background-color: var(--bg-input);
+            border: none;
+            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex: none;
+        }
+
+        .calendar-btn:hover {
+            background-color: var(--theme-color);
+            color: white;
+        }
+
+        /* 返回今天按钮样式 */
+        #todayBtn {
+            padding: 0 0.8rem;
+            height: 32px;
+            font-size: 0.85rem;
+            background-color: var(--theme-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: none;
+            display: none; /* 默认隐藏，动态控制显隐 */
+        }
+
+        #todayBtn:hover {
+            background-color: var(--theme-color-hover);
+        }
+
+        /* 日历星期 */
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .week-item {
+            text-align: center;
             font-size: 0.9rem;
-            transition: color 0.3s ease;
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            font-weight: 500;
         }
 
-        footer:hover .copyright {
-            color: #ccc;
+        /* 日历内容容器（日期/月份/年份通用） */
+        .calendar-content {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 日期7列，月份/年份自动适配 */
+            gap: 0.5rem;
+            flex: 1; /* 占满中间空间，让关闭按钮固定底部 */
+            margin-bottom: 1.5rem;
+            overflow-y: auto; /* 内容过多时滚动 */
+        }
+
+        /* 日期项样式 */
+        .day-item {
+            text-align: center;
+            padding: 0.8rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+        }
+
+        .day-item.empty {
+            cursor: default;
+            opacity: 0;
+        }
+
+        .day-item.today {
+            background-color: var(--theme-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .day-item.selected {
+            background-color: var(--selected-day-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .day-item:hover:not(.empty) {
+            background-color: var(--bg-input);
+        }
+
+        /* 月份项样式 */
+        .month-item {
+            text-align: center;
+            padding: 1rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            grid-column: span 3; /* 每行3个月份，美观布局 */
+            margin: 0.2rem;
+        }
+
+        .month-item.selected {
+            background-color: var(--selected-month-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .month-item:hover {
+            background-color: var(--bg-input);
+        }
+
+        /* 年份项样式 */
+        .year-item {
+            text-align: center;
+            padding: 1.2rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            grid-column: span 2; /* 每行4个年份，美观布局 */
+            margin: 0.2rem;
+        }
+
+        .year-item.selected {
+            background-color: var(--selected-year-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .year-item:hover {
+            background-color: var(--bg-input);
+        }
+
+        /* 深色模式切换按钮 */
+        .theme-toggle {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-input);
+        }
+
+        .container { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2rem; 
+            background-color: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        label { 
+            display: block; 
+            margin-bottom: 0.7rem; 
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+        }
+
+        select, textarea, input { 
+            width: 100%; 
+            padding: 0.8rem 1rem; 
+            border: 1px solid var(--border-color);
+            border-radius: 10px; 
+            font-size: 1rem;
+            font-family: inherit;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--theme-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea { 
+            height: 200px; 
+            resize: none; 
+            line-height: 1.7; 
+        }
+
+        .result-box { 
+            border: 1px solid var(--border-color); 
+            padding: 1.2rem; 
+            border-radius: 10px; 
+            min-height: 200px; 
+            margin-top: 0.8rem; 
+            background-color: var(--bg-input);
+            line-height: 1.8; 
+            color: var(--text-primary);
+            overflow-y: auto; 
+        }
+
+        .domain-group { margin: 1rem 0 1.5rem 0; }
+
+        /* 发音按钮（调整位置，更紧凑） */
+        .pronounce-group {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .pronounce-btn { 
+            background: var(--accent-color); 
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem; 
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: none;
+        }
+
+        .pronounce-btn:hover {
+            background: var(--accent-color-hover);
+        }
+
+        .error { 
+            color: var(--error-color); 
+            margin-top: 0.7rem; 
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         /* 响应式适配 */
         @media (max-width: 768px) {
-            .nav-container {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
+            .header {
                 flex-direction: column;
+                align-items: flex-start;
             }
-
-            .nav-links {
-                margin-top: 1rem;
-                justify-content: center;
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
             }
-
-            .nav-links li {
-                margin-left: 1rem;
-                margin-right: 1rem;
+            /* 移动端月份/年份布局优化 */
+            .month-item {
+                grid-column: span 4;
             }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .concept-content {
-                padding: 2rem 1.5rem;
+            .year-item {
+                grid-column: span 2;
             }
         }
     </style>
-    <!-- 引入图标库 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <!-- 导航栏（恢复为页面顶部首个元素） -->
-    <nav>
-        <div class="nav-container">
-            <div class="logo">绿色守护</div>
-            <ul class="nav-links">
-                <li><a href="#home">首页</a></li>
-                <li><a href="#status">环境现状</a></li>
-                <li><a href="#actions">环保常识</a></li>
-                <li><a href="#data">环保数据</a></li>
-                <li><a href="#concept">环保理念</a></li>
-            </ul>
+<body data-theme="light">
+    <!-- 头部：标题 + 北京时间 + 深色模式切换 -->
+    <div class="header">
+        <h1>有道智云文本翻译工具</h1>
+        <div class="header-right">
+            <div class="time-display" id="beijingTime">
+                YYYY-MM-DD HH:mm:ss
+                <!-- 日历容器：新增年月层级选择 -->
+                <div class="calendar" id="calendar">
+                    <div class="calendar-header">
+                        <button class="calendar-btn" id="prevBtn">◀</button>
+                        <div class="calendar-title" id="calendarTitle">2025年12月</div>
+                        <button id="todayBtn">今天</button>
+                        <button class="calendar-btn" id="nextBtn">▶</button>
+                    </div>
+                    <div class="calendar-week" id="calendarWeek">
+                        <div class="week-item">日</div>
+                        <div class="week-item">一</div>
+                        <div class="week-item">二</div>
+                        <div class="week-item">三</div>
+                        <div class="week-item">四</div>
+                        <div class="week-item">五</div>
+                        <div class="week-item">六</div>
+                    </div>
+                    <!-- 通用内容容器：切换日期/月份/年份 -->
+                    <div class="calendar-content" id="calendarContent"></div>
+                    <!-- 移动端日历关闭按钮（强制生效） -->
+                    <button id="calendarClose">× 关闭日历</button>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <span id="themeIcon">🌞</span>
+                <span id="themeText">切换深色模式</span>
+            </button>
         </div>
-    </nav>
+    </div>
 
-    <!-- 英雄区（指定文字无特效，恢复原始布局） -->
-    <section class="hero" id="home">
-        <h1>守护绿色家园，共筑美好未来</h1>
-        <p>环境是人类生存的基础，每一份微小的努力，都能汇聚成改变世界的力量。绿色共生，人人践行，让我们以行动守护这片蓝色星球的生机与活力。</p>
-    </section>
-
-    <!-- 环境现状模块（无内部Banner，恢复原始卡片布局） -->
-    <section class="section" id="status">
-        <h2 class="section-title">当前环境现状</h2>
-        <div class="status-container">
-            <div class="status-card">
-                <h3>气候变暖</h3>
-                <p>全球平均气温持续升高，冰川融化、海平面上升，极端天气事件（暴雨、干旱、高温）频发，对生态系统和人类生产生活造成严重威胁。</p>
+    <div class="container">
+        <!-- 左侧输入区 -->
+        <div class="input-area">
+            <div class="form-group">
+                <label>源语言（支持自动识别）</label>
+                <select id="fromLang">
+                    <option value="auto">自动识别</option>
+                    <option value="zh-CHS">简体中文</option>
+                    <option value="en">英语</option>
+                    <option value="ja">日语</option>
+                    <option value="ko">韩语</option>
+                    <option value="de">德语</option>
+                    <option value="fr">法语</option>
+                    <option value="ru">俄语</option>
+                </select>
             </div>
-            <div class="status-card">
-                <h3>塑料污染</h3>
-                <p>每年有超过800万吨塑料进入海洋，形成巨大的“塑料垃圾带”，不仅危害海洋生物的生存，还会通过食物链最终影响人类健康。</p>
+            <div class="form-group">
+                <label>待翻译文本（最多5000字符）</label>
+                <textarea id="query" placeholder="请输入要翻译的内容...（输入停留500ms自动翻译）"></textarea>
+                <div id="inputError" class="error"></div>
             </div>
-            <div class="status-card">
-                <h3>森林锐减</h3>
-                <p>全球森林面积以每年1300万公顷的速度消失，森林的减少导致水土流失、生物多样性下降，同时削弱了地球对二氧化碳的吸收能力。</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 环保常识模块（恢复原始布局） -->
-    <section class="section actions" id="actions">
-        <h2 class="section-title">环保生活常识</h2>
-        <div class="action-list">
-            <div class="action-item">
-                <i class="fas fa-recycle"></i>
-                <h4>垃圾分类回收</h4>
-                <p>严格按照分类标准投放垃圾，提高可回收物利用率，减少垃圾填埋和焚烧带来的污染，助力资源循环利用。</p>
-            </div>
-            <div class="action-item">
-                <i class="fas fa-leaf"></i>
-                <h4>节约资源能源</h4>
-                <p>随手关灯、节约用水，减少使用一次性用品，优先选择节能家电和绿色出行方式，降低资源消耗与碳排放。</p>
-            </div>
-            <div class="action-item">
-                <i class="fas fa-tree"></i>
-                <h4>守护植被生态</h4>
-                <p>爱护花草树木，积极保护现有植被，森林与绿植是地球的“肺叶”，能有效净化空气、调节气候。</p>
-            </div>
-            <div class="action-item">
-                <i class="fas fa-bullhorn"></i>
-                <h4>传播环保理念</h4>
-                <p>向身边人普及环保知识，传递绿色生活理念，让更多人了解环境现状，树立生态保护意识。</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 环保数据模块（恢复原始布局） -->
-    <section class="section" id="data">
-        <h2 class="section-title">环保核心数据</h2>
-        <div class="data-container">
-            <div class="data-item">
-                <div class="data-number">30%</div>
-                <div class="data-desc">垃圾分类可减少30%以上的垃圾处理量</div>
-            </div>
-            <div class="data-item">
-                <div class="data-number">80+</div>
-                <div class="data-desc">一次性塑料袋需要80年以上才能自然降解</div>
-            </div>
-            <div class="data-item">
-                <div class="data-number">1棵树</div>
-                <div class="data-desc">每年可吸收约18公斤二氧化碳</div>
-            </div>
-            <div class="data-item">
-                <div class="data-number">50%</div>
-                <div class="data-desc">绿色出行可减少50%的城市尾气排放</div>
+            <div class="domain-group">
+                <label>翻译领域</label>
+                <select id="domain">
+                    <option value="general">通用（默认）</option>
+                    <option value="computers">计算机</option>
+                    <option value="finance">金融经济</option>
+                    <option value="medicine">医学</option>
+                    <option value="game">游戏</option>
+                </select>
             </div>
         </div>
-    </section>
 
-    <!-- 环保理念宣传模块（恢复原始布局） -->
-    <section class="section concept" id="concept">
-        <h2 class="section-title">核心环保理念</h2>
-        <div class="concept-content">
-            <h4>人与自然和谐共生</h4>
-            <p>人类是自然的一部分，不是自然的主宰。尊重自然、顺应自然、保护自然，是实现人类可持续发展的根本前提，唯有与自然共生，才能获得长久的生存与发展空间。</p>
-            <h4>绿水青山就是金山银山</h4>
-            <p>良好的生态环境是最普惠的民生福祉，优美的自然景观、健康的生态系统，既是生态财富，也是经济财富，保护生态环境就是保护生产力，改善生态环境就是发展生产力。</p>
-            <h4>绿色低碳，全民践行</h4>
-            <p>绿色生活不是一句口号，而是融入日常的点滴选择。从节约一度电、一滴水，到减少一次驾车、少用一个塑料袋，每个人的微小行动，都能汇聚成生态保护的巨大力量。</p>
+        <!-- 右侧输出区 -->
+        <div class="output-area">
+            <div class="form-group">
+                <label>目标语言</label>
+                <select id="toLang">
+                    <option value="en">英语</option>
+                    <option value="zh-CHS">简体中文</option>
+                    <option value="ja">日语</option>
+                    <option value="ko">韩语</option>
+                    <option value="de">德语</option>
+                    <option value="fr">法语</option>
+                    <option value="ru">俄语</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>翻译结果</label>
+                <div id="translationResult" class="result-box"></div>
+                <div class="pronounce-group">
+                    <button id="playTarget" class="pronounce-btn" style="display: none;">播放翻译结果发音</button>
+                    <button id="playSource" class="pronounce-btn" style="display: none;">播放源文本发音</button>
+                </div>
+            </div>
+            <div id="apiError" class="error"></div>
         </div>
-    </section>
+    </div>
 
-    <!-- 页脚（恢复原始布局） -->
-    <footer>
-        <h3>绿色守护 - 环保公益宣传平台</h3>
-        <p>本平台仅用于环保知识科普与理念宣传，践行绿色生活，守护共同家园</p>
-        <div class="copyright">
-            © 2025 绿色守护 版权所有 | 公益宣传，禁止商用
-        </div>
-    </footer>
+    <!-- 依赖库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.0.0/crypto-js.js"></script>
+    <script>
+        // 已填入你的应用信息
+        const APP_KEY = "09e14b3b4b83a979";
+        const APP_SECRET = "kavQlHyAzftoSoDWuiHe8GswjbGn0tlC";
+        const VOCAB_ID = "";
+
+        // 自动翻译定时器（用于控制500ms延迟）
+        let translateTimer = null;
+        // 记录选中的日期/月份/年份
+        let selectedDay = null;
+        let selectedMonth = null;
+        let selectedYear = null;
+        // 今日日期
+        const todayDate = new Date();
+        // 日历层级：date（日期，默认）→ month（月份）→ year（年份）
+        let calendarLevel = "date";
+        // 当前显示的日期/月份/年份
+        let currentDate = new Date(todayDate);
+        let currentYearRange = [todayDate.getFullYear() - 10, todayDate.getFullYear() + 10]; // 年份选择范围
+        // 标记是否手动切换过主题（手动切换优先级高于自动判断）
+        let isManualThemeToggle = false;
+
+        // 判断是否为中文（包含简体中文汉字）
+        function isChinese(text) {
+            const chineseReg = /[\u4e00-\u9fa5]/;
+            return chineseReg.test(text);
+        }
+
+        // 根据时间判断是否应该启用深色模式（20:00 - 次日08:00）
+        function shouldUseDarkMode() {
+            const now = new Date();
+            const hour = now.getHours();
+            return hour >= 20 || hour < 8;
+        }
+
+        // 自动切换主题（根据时间）
+        function autoSwitchTheme() {
+            if (isManualThemeToggle) {
+                return;
+            }
+            const themeToggle = $("#themeToggle");
+            const themeIcon = $("#themeIcon");
+            const themeText = $("#themeText");
+            const body = $("body");
+            const isDark = shouldUseDarkMode();
+
+            if (isDark) {
+                body.attr("data-theme", "dark");
+                themeIcon.text("🌙");
+                themeText.text("切换浅色模式");
+                localStorage.setItem("theme", "dark");
+            } else {
+                body.attr("data-theme", "light");
+                themeIcon.text("🌞");
+                themeText.text("切换深色模式");
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+        // 翻译核心函数
+        function doTranslate() {
+            const query = $.trim($("#query").val());
+            let from = $("#fromLang").val();
+            let to = $("#toLang").val();
+            const domain = $("#domain").val();
+
+            if (query) {
+                if (isChinese(query)) {
+                    to = "en";
+                    $("#toLang").val("en");
+                    if (from !== "auto") {
+                        from = "zh-CHS";
+                        $("#fromLang").val("zh-CHS");
+                    }
+                } else {
+                    to = "zh-CHS";
+                    $("#toLang").val("zh-CHS");
+                }
+            }
+
+            if (!query) {
+                $("#translationResult").text("");
+                $("#playTarget").hide();
+                $("#playSource").hide();
+                $("#inputError").text("");
+                return;
+            }
+
+            if (query.length > 5000) {
+                $("#inputError").text("错误：文本长度超过5000字符限制（API错误码103）");
+                $("#translationResult").text("");
+                $("#playTarget").hide();
+                $("#playSource").hide();
+                return;
+            }
+
+            $("#inputError").text("");
+            $("#apiError").text("");
+            $("#translationResult").text("翻译中...");
+            $("#playTarget").hide();
+            $("#playSource").hide();
+
+            const salt = UUID.generate();
+            const curtime = Math.round(new Date().getTime() / 1000);
+            const input = truncate(query);
+            const signStr = APP_KEY + input + salt + curtime + APP_SECRET;
+            const sign = CryptoJS.SHA256(signStr).toString(CryptoJS.enc.Hex);
+
+            $.ajax({
+                url: "https://openapi.youdao.com/api",
+                type: "post",
+                dataType: "jsonp",
+                data: {
+                    q: query,
+                    from: from,
+                    to: to,
+                    appKey: APP_KEY,
+                    salt: salt,
+                    sign: sign,
+                    signType: "v3",
+                    curtime: curtime,
+                    domain: domain,
+                    vocabId: VOCAB_ID,
+                    ext: "mp3",
+                    voice: "0"
+                },
+                success: function(data) {
+                    handleResponse(data);
+                },
+                error: function() {
+                    $("#apiError").text("网络错误：请检查网络连接或API配置");
+                    $("#translationResult").text("");
+                }
+            });
+        }
+
+        // 输入框输入事件：停留500ms自动翻译 + 实时同步下拉框
+        $("#query").on("input", function() {
+            const query = $.trim($(this).val());
+
+            if (query) {
+                if (isChinese(query)) {
+                    $("#toLang").val("en");
+                    if ($("#fromLang").val() !== "auto") {
+                        $("#fromLang").val("zh-CHS");
+                    }
+                } else {
+                    $("#toLang").val("zh-CHS");
+                }
+            }
+
+            if (!query) {
+                if (translateTimer) {
+                    clearTimeout(translateTimer);
+                    translateTimer = null;
+                }
+                $("#translationResult").text("");
+                $("#playTarget").hide();
+                $("#playSource").hide();
+                $("#inputError").text("");
+                return;
+            }
+
+            if (translateTimer) {
+                clearTimeout(translateTimer);
+            }
+            translateTimer = setTimeout(function() {
+                doTranslate();
+            }, 500);
+        });
+
+        // 语种/领域切换时，仅非空输入触发翻译
+        $("#fromLang, #toLang, #domain").change(function() {
+            const query = $.trim($("#query").val());
+            if (query) {
+                doTranslate();
+            }
+        });
+
+        // 处理API响应
+        function handleResponse(data) {
+            if (data.errorCode !== "0") {
+                const errorMap = {
+                    "101": "缺少必填参数",
+                    "102": "不支持的语言类型",
+                    "103": "翻译文本过长",
+                    "108": "应用ID无效",
+                    "110": "应用未绑定TTS服务",
+                    "202": "签名检验失败",
+                    "207": "重放请求（salt重复）",
+                    "401": "账户欠费"
+                };
+                const errorMsg = errorMap[data.errorCode] || `API错误（${data.errorCode}）：请参考官方文档`;
+                $("#apiError").text(errorMsg);
+                $("#translationResult").text("");
+                $("#playTarget").hide();
+                $("#playSource").hide();
+                return;
+            }
+
+            const translation = data.translation.join("<br>");
+            $("#translationResult").html(`
+                <p>${translation}</p>
+                ${data.isDomainSupport ? `<p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.5rem;">领域翻译：${$("#domain").find("option:selected").text()}</p>` : ""}
+                <p style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem;">语言方向：${data.l}</p>
+            `);
+
+            if (data.tSpeakUrl) {
+                $("#playTarget").show().off("click").click(() => {
+                    const audio = new Audio(data.tSpeakUrl);
+                    audio.play().catch((err) => {
+                        $("#apiError").text("发音失败：请在有道智云控制台绑定TTS语音合成服务");
+                        console.error("发音错误：", err);
+                    });
+                });
+            } else {
+                $("#playTarget").hide();
+            }
+
+            if (data.speakUrl) {
+                $("#playSource").show().off("click").click(() => {
+                    const audio = new Audio(data.speakUrl);
+                    audio.play().catch((err) => {
+                        $("#apiError").text("发音失败：请在有道智云控制台绑定TTS语音合成服务");
+                        console.error("发音错误：", err);
+                    });
+                });
+            } else {
+                $("#playSource").hide();
+            }
+        }
+
+        // 生成UUID
+        const UUID = {
+            generate: function() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+        };
+
+        // 计算input参数
+        function truncate(q) {
+            const len = q.length;
+            return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
+        }
+
+        // 深色模式切换
+        const themeToggle = $("#themeToggle");
+        const themeIcon = $("#themeIcon");
+        const themeText = $("#themeText");
+        const body = $("body");
+
+        // 初始化主题
+        function initTheme() {
+            autoSwitchTheme();
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme) {
+                body.attr("data-theme", savedTheme);
+                if (savedTheme === "dark") {
+                    themeIcon.text("🌙");
+                    themeText.text("切换浅色模式");
+                } else {
+                    themeIcon.text("🌞");
+                    themeText.text("切换深色模式");
+                }
+            }
+        }
+
+        // 切换主题（手动切换，标记为手动操作，停止自动切换）
+        themeToggle.click(function() {
+            isManualThemeToggle = true;
+            const currentTheme = body.attr("data-theme");
+            if (currentTheme === "light") {
+                body.attr("data-theme", "dark");
+                themeIcon.text("🌙");
+                themeText.text("切换浅色模式");
+                localStorage.setItem("theme", "dark");
+            } else {
+                body.attr("data-theme", "light");
+                themeIcon.text("🌞");
+                themeText.text("切换深色模式");
+                localStorage.setItem("theme", "light");
+            }
+        });
+
+        // 实时显示北京时间
+        function updateBeijingTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            const seconds = String(now.getSeconds()).padStart(2, "0");
+            const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            $("#beijingTime").contents().first()[0].textContent = timeStr;
+
+            autoSwitchTheme();
+        }
+
+        // 初始化时间并每秒更新
+        updateBeijingTime();
+        setInterval(updateBeijingTime, 1000);
+
+        // 日历相关元素
+        const calendar = $("#calendar");
+        const calendarTitle = $("#calendarTitle");
+        const calendarContent = $("#calendarContent");
+        const calendarWeek = $("#calendarWeek");
+        const prevBtn = $("#prevBtn");
+        const nextBtn = $("#nextBtn");
+        const todayBtn = $("#todayBtn");
+        const calendarClose = $("#calendarClose");
+        const timeDisplay = $("#beijingTime");
+
+        // 控制返回今天按钮显隐
+        function toggleTodayBtnVisibility() {
+            const isCurrentMonth = currentDate.getFullYear() === todayDate.getFullYear() && 
+                                   currentDate.getMonth() === todayDate.getMonth();
+            if (calendarLevel === "date" && isCurrentMonth) {
+                todayBtn.hide();
+            } else {
+                todayBtn.show();
+            }
+        }
+
+        // 渲染日期视图（默认层级）
+        function renderDateView(year, month) {
+            calendarTitle.text(`${year}年${month + 1}月`);
+            calendarContent.empty();
+            selectedDay = null;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const firstDayWeek = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            const isCurrentMonth = todayDate.getFullYear() === year && todayDate.getMonth() === month;
+
+            // 添加上月占位
+            for (let i = 0; i < firstDayWeek; i++) {
+                const dayItem = $("<div>").addClass("day-item empty");
+                calendarContent.append(dayItem);
+            }
+
+            // 添加当月日期
+            for (let day = 1; day <= totalDays; day++) {
+                const dayItem = $("<div>").addClass("day-item").text(day);
+                // 标记今日
+                if (isCurrentMonth && day === todayDate.getDate()) {
+                    dayItem.addClass("today");
+                }
+                // 绑定点击高亮事件
+                dayItem.click(function() {
+                    $(".day-item").removeClass("selected");
+                    $(this).addClass("selected");
+                    selectedDay = { year, month, day };
+                });
+                calendarContent.append(dayItem);
+            }
+
+            // 显示星期栏
+            calendarWeek.show();
+            // 更新按钮显隐
+            toggleTodayBtnVisibility();
+        }
+
+        // 渲染月份视图（点击日期标题切换）
+        function renderMonthView(year) {
+            calendarTitle.text(`${year}年`);
+            calendarContent.empty();
+            selectedMonth = null;
+            const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+
+            months.forEach((monthName, index) => {
+                const monthItem = $("<div>").addClass("month-item").text(monthName);
+                if (year === todayDate.getFullYear() && index === todayDate.getMonth()) {
+                    monthItem.addClass("today");
+                }
+                monthItem.click(function() {
+                    $(".month-item").removeClass("selected");
+                    $(this).addClass("selected");
+                    selectedMonth = index;
+                    calendarLevel = "date";
+                    currentDate.setFullYear(year, index, 1);
+                    renderDateView(year, index);
+                });
+                calendarContent.append(monthItem);
+            });
+
+            calendarWeek.hide();
+            toggleTodayBtnVisibility();
+        }
+
+        // 渲染年份视图（点击月份标题切换）
+        function renderYearView() {
+            const [startYear, endYear] = currentYearRange;
+            calendarTitle.text(`${startYear}-${endYear}年`);
+            calendarContent.empty();
+            selectedYear = null;
+
+            for (let year = startYear; year <= endYear; year++) {
+                const yearItem = $("<div>").addClass("year-item").text(year);
+                if (year === todayDate.getFullYear()) {
+                    yearItem.addClass("today");
+                }
+                yearItem.click(function() {
+                    $(".year-item").removeClass("selected");
+                    $(this).addClass("selected");
+                    selectedYear = year;
+                    calendarLevel = "month";
+                    renderMonthView(year);
+                });
+                calendarContent.append(yearItem);
+            }
+
+            calendarWeek.hide();
+            toggleTodayBtnVisibility();
+        }
+
+        // 切换日历层级（日期→月份→年份）
+        function switchCalendarLevel() {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+
+            if (calendarLevel === "date") {
+                calendarLevel = "month";
+                renderMonthView(currentYear);
+            } else if (calendarLevel === "month") {
+                calendarLevel = "year";
+                renderYearView();
+            } else {
+                calendarLevel = "date";
+                renderDateView(currentYear, currentMonth);
+            }
+        }
+
+        // 日历标题点击事件（切换层级）
+        calendarTitle.click(function() {
+            switchCalendarLevel();
+        });
+
+        // 上一个/下一个按钮通用事件
+        prevBtn.click(function() {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+
+            if (calendarLevel === "date") {
+                currentDate.setMonth(currentMonth - 1);
+                renderDateView(currentDate.getFullYear(), currentDate.getMonth());
+            } else if (calendarLevel === "month") {
+                renderMonthView(currentYear - 1);
+                currentDate.setFullYear(currentYear - 1);
+            } else {
+                currentYearRange = [currentYearRange[0] - 20, currentYearRange[1] - 20];
+                renderYearView();
+            }
+        });
+
+        nextBtn.click(function() {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+
+            if (calendarLevel === "date") {
+                currentDate.setMonth(currentMonth + 1);
+                renderDateView(currentDate.getFullYear(), currentDate.getMonth());
+            } else if (calendarLevel === "month") {
+                renderMonthView(currentYear + 1);
+                currentDate.setFullYear(currentYear + 1);
+            } else {
+                currentYearRange = [currentYearRange[0] + 20, currentYearRange[1] + 20];
+                renderYearView();
+            }
+        });
+
+        // 返回今天按钮点击事件
+        todayBtn.click(function() {
+            calendarLevel = "date";
+            currentDate = new Date(todayDate);
+            currentYearRange = [todayDate.getFullYear() - 10, todayDate.getFullYear() + 10];
+            renderDateView(todayDate.getFullYear(), todayDate.getMonth());
+        });
+
+        // 核心修复2：优化移动端日历显示逻辑，强制覆盖样式
+        timeDisplay.click(function(e) {
+            e.stopPropagation();
+            const isMobile = $(window).width() <= 768;
+            const isCalendarVisible = calendar.is(":visible");
+
+            if (isCalendarVisible) {
+                // 隐藏日历
+                calendar.hide();
+                if (isMobile) {
+                    calendar.css("display", "none");
+                }
+            } else {
+                // 显示日历：针对移动端强制设置display: flex
+                if (isMobile) {
+                    calendar.css({
+                        "display": "flex",
+                        "opacity": 1,
+                        "z-index": 9999
+                    });
+                } else {
+                    calendar.show();
+                }
+                // 重新渲染日历，确保日期正常显示
+                if (calendarLevel === "date") {
+                    renderDateView(currentDate.getFullYear(), currentDate.getMonth());
+                } else if (calendarLevel === "month") {
+                    renderMonthView(currentDate.getFullYear());
+                } else {
+                    renderYearView();
+                }
+            }
+        });
+
+        // 点击日历外部隐藏日历
+        $(document).click(function(e) {
+            if (!$(e.target).closest("#beijingTime").length && calendar.is(":visible")) {
+                calendar.hide();
+                if ($(window).width() <= 768) {
+                    calendar.css("display", "none");
+                }
+            }
+        });
+
+        // 日历内部点击阻止冒泡
+        calendar.click(function(e) {
+            e.stopPropagation();
+        });
+
+        // 移动端关闭按钮优化
+        calendarClose.click(function(e) {
+            e.stopImmediatePropagation();
+            calendar.hide();
+            if ($(window).width() <= 768) {
+                calendar.css("display", "none");
+            }
+            calendarLevel = "date";
+            currentDate = new Date(todayDate);
+            renderDateView(todayDate.getFullYear(), todayDate.getMonth());
+        });
+
+        // 初始化日历和主题
+        renderDateView(currentDate.getFullYear(), currentDate.getMonth());
+        toggleTodayBtnVisibility();
+        initTheme();
+    </script>
 </body>
 </html>
